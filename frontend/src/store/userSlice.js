@@ -10,9 +10,10 @@ const slice = createSlice({
     registerRequest(state, action){ state.loading = true; state.error = null },
     loginSuccess(state, action){ state.loading = false; state.user = action.payload.user; state.token = action.payload.token },
     loginFailure(state, action){ state.loading = false; state.error = action.payload },
-    logout(state){ return { user: null, token: null, loading: false, error: null } }
+    logout(state){ return { user: null, token: null, loading: false, error: null } },
+    updateUserBalance(state, action){ if (state.user) { state.user.leaveBalance = action.payload } }
   }
 })
 
-export const { loginRequest, registerRequest, loginSuccess, loginFailure, logout } = slice.actions
+export const { loginRequest, registerRequest, loginSuccess, loginFailure, logout, updateUserBalance } = slice.actions
 export default slice.reducer

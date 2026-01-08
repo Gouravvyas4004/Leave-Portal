@@ -26,7 +26,6 @@ export default function AdminDashboard() {
   const [actionType, setActionType] = useState(null)
   const [reason, setReason] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [showAll, setShowAll] = useState(false);
   const [selectedTab, setSelectedTab] = useState('pending');
 
   // KPI counts
@@ -37,8 +36,15 @@ export default function AdminDashboard() {
   const rejectedCount = leaves.filter(l => l.status === 'rejected').length
 
   useEffect(() => {
-    dispatch(fetchLeavesRequest({}))
+    dispatch(fetchLeavesRequest({ force: true }))
     dispatch(fetchUsersRequest())
+    
+    // Periodically refresh leaves to ensure history is always updated
+    const interval = setInterval(() => {
+      dispatch(fetchLeavesRequest({ force: true }))
+    }, 30000) // Refresh every 30 seconds
+    
+    return () => clearInterval(interval)
   }, [dispatch])
 
   const handleUserClick = (userId, index) => {
@@ -132,27 +138,23 @@ export default function AdminDashboard() {
               <Grid item xs={12}>
                 <Paper sx={{ p: 3, mb: 3, borderTop: '4px solid #3b82f6' }} elevation={1}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" fontWeight="bold">Active Leave Requests</Typography>
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                      <Tabs value={showAll ? 'all' : selectedTab} onChange={(e, v) => { if (v === 'all') { setShowAll(true); } else { setShowAll(false); setSelectedTab(v); } setSelectedIndex(null); }} size="small" textColor="primary" indicatorColor="primary">
-                        <Tab label="Pending" value="pending" />
-                        <Tab label="Approved" value="approved" />
-                        <Tab label="Rejected" value="rejected" />
-                        <Tab label={showAll ? 'All (On)' : 'View All'} value="all" />
-                      </Tabs>
-                    </Box>
+                    <Typography variant="h6" fontWeight="bold">All Leave Requests</Typography>
+                    <Tabs value={selectedTab} onChange={(e, v) => setSelectedTab(v)} size="small" textColor="primary" indicatorColor="primary">
+                      <Tab label={`Pending (${leaves.filter(l => l.status === 'pending').length})`} value="pending" />
+                      <Tab label={`Approved (${leaves.filter(l => l.status === 'approved').length})`} value="approved" />
+                      <Tab label={`Rejected (${leaves.filter(l => l.status === 'rejected').length})`} value="rejected" />
+                      <Tab label={`All (${leaves.length})`} value="all" />
+                    </Tabs>
                   </Box>
 
                   <Box sx={{ mb: 2 }}>
-                    <ApprovalGrid items={showAll ? leaves : leaves.filter(l => l.status === selectedTab)} status={showAll ? 'all' : selectedTab} onApprove={(row) => handleOpen(row, 'approve')} onReject={(row) => handleOpen(row, 'reject')} />
+                    <ApprovalGrid items={selectedTab === 'all' ? leaves : leaves.filter(l => l.status === selectedTab)} status={selectedTab} onApprove={(row) => handleOpen(row, 'approve')} onReject={(row) => handleOpen(row, 'reject')} />
                   </Box>
 
-                  {showAll && (
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ mb: 1 }}>Full requests</Typography>
-                      <LeaveTable adminView items={selectedTab === 'all' ? undefined : leaves.filter(l => l.status === selectedTab)} onApprove={(row) => handleOpen(row, 'approve')} onReject={(row) => handleOpen(row, 'reject')} />
-                    </Box>
-                  )}
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Detailed view</Typography>
+                    <LeaveTable adminView items={selectedTab === 'all' ? leaves : leaves.filter(l => l.status === selectedTab)} onApprove={(row) => handleOpen(row, 'approve')} onReject={(row) => handleOpen(row, 'reject')} />
+                  </Box>
                 </Paper>
               </Grid>
 

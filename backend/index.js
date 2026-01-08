@@ -21,8 +21,8 @@ app.get('/', (req, res) => res.json({ message: 'Leave Portal API (stubbed)'}));
 
 const port = process.env.PORT || 4000;
 // Connect to MongoDB Atlas
-const defaultUri = 'mongodb+srv://gouravvyas542_db_user:4gJYsL94aaqtHj73@cluster0.jnjusiv.mongodb.net/?appName=Cluster0'
-const mongoUri = process.env.MONGODB_URI || defaultUri
+// const defaultUri = 'mongodb+srv://gouravvyas542_db_user:4gJYsL94aaqtHj73@cluster0.jnjusiv.mongodb.net/?appName=Cluster0'
+const mongoUri = process.env.MONGODB_URI
 
 mongoose.connect(mongoUri)
   .then(async () => {

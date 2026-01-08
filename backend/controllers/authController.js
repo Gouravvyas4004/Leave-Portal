@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
     if (!match) return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = signToken(user);
-    res.json({ token, user: { id: String(user._id), name: user.name, email: user.email, role: user.role } });
+    res.json({ token, user: { id: String(user._id), name: user.name, email: user.email, role: user.role, leaveBalance: user.leaveBalance, totalLeaveBalance: user.totalLeaveBalance } });
   } catch (err) {
     console.error('auth.login error:', err && err.stack ? err.stack : err);
     res.status(500).json({ message: 'Internal server error' });
@@ -43,7 +43,7 @@ exports.register = async (req, res) => {
     await newUser.save();
 
     const token = signToken(newUser);
-    res.status(201).json({ token, user: { id: String(newUser._id), email: newUser.email, name: newUser.name, role: newUser.role } });
+    res.status(201).json({ token, user: { id: String(newUser._id), email: newUser.email, name: newUser.name, role: newUser.role, leaveBalance: newUser.leaveBalance, totalLeaveBalance: newUser.totalLeaveBalance } });
   } catch (err) {
     console.error('auth.register error:', err && err.stack ? err.stack : err);
     res.status(500).json({ message: 'Internal server error' });

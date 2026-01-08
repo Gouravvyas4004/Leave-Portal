@@ -1,7 +1,8 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import store from './store'
+import { PersistGate } from 'redux-persist/integration/react'
+import store, { persistor } from './store'
 import App from './App'
 import './index.css'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -17,10 +18,12 @@ const theme = createTheme({
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <App />
-      <Toast />
-      <div id="portal"></div>
-    </ThemeProvider>
+    <PersistGate loading={null} persistor={persistor}>
+      <ThemeProvider theme={theme}>
+        <App />
+        <Toast />
+        <div id="portal"></div>
+      </ThemeProvider>
+    </PersistGate>
   </Provider>
 )

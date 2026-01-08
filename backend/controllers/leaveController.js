@@ -49,22 +49,32 @@ exports.applyLeave = async (req, res) => {
     const userId = (isManager(req) && bodyUserId) ? bodyUserId : req.user.id;
 
     console.log('applyLeave: received request for user', userId, { type, from, to, days });
+    
+    // Validate input
+    if (!type || !from || !to || !days) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
     const l = new Leave({ userId, type, from, to, days, status: 'pending' });
     await l.save();
+    
+    // Populate user info before sending response
+    await l.populate('userId', 'name email role leaveBalance totalLeaveBalance');
     const saved = l.toObject();
 
-    // DRY Cache Invalidation (ensure refreshes see the new data)
-    await clearCache(
-      'leaves:all', 
-      `leaves:user:${userId}`, 
-      `leaves:user:${req.user.id}`
-    );
-    console.log('applyLeave: saved and invalidated cache for user', userId, 'leaveId', saved._id);
+    console.log('applyLeave: saved leave for user', userId, 'leaveId', saved._id);
 
-    // Add a debug header so the client can confirm receipt
-    res.set('X-Debug-Apply', 'ok')
-    res.status(201).json({ message: 'Leave applied', leave: saved })
-    console.log('applyLeave: response sent for leaveId', saved._id);
+    // Send response immediately (don't wait for cache)
+    res.status(201).json({ message: 'Leave applied', leave: saved });
+    
+    // Clear cache in background (non-blocking)
+    setImmediate(() => {
+      clearCache(
+        'leaves:all', 
+        `leaves:user:${userId}`, 
+        `leaves:user:${req.user.id}`
+      );
+    });
   } catch(err) {
     console.error('applyLeave error:', err && err.stack ? err.stack : err);
     res.status(500).json({ message: 'Error applying leave', error: err.message });
@@ -84,13 +94,19 @@ exports.listLeaves = async (req, res) => {
       if (adminView) {
         const filter = userId ? { userId } : {};
         const items = await Leave.find(filter)
-          .populate('userId', 'name email role')
+          .populate('userId', 'name email role leaveBalance totalLeaveBalance')
           .populate('approverId', 'name')
+          .sort({ createdAt: -1 })
           .lean();
+        console.log('listLeaves: returned', items.length, 'items for admin')
         res.set('X-Cache', 'bypass')
         return res.json(items);
       }
-      const items = await Leave.find({ userId: currentId }).lean();
+      const items = await Leave.find({ userId: currentId })
+        .populate('userId', 'name email role leaveBalance totalLeaveBalance')
+        .sort({ createdAt: -1 })
+        .lean();
+      console.log('listLeaves: returned', items.length, 'items for user', currentId)
       res.set('X-Cache', 'bypass')
       return res.json(items);
     }
@@ -105,15 +121,21 @@ exports.listLeaves = async (req, res) => {
       if (adminView) {
         const filter = userId ? { userId } : {};
         return await Leave.find(filter)
-          .populate('userId', 'name email role')
+          .populate('userId', 'name email role leaveBalance totalLeaveBalance')
           .populate('approverId', 'name')
+          .sort({ createdAt: -1 })
           .lean();
       }
-      return await Leave.find({ userId: currentId }).lean();
+      return await Leave.find({ userId: currentId })
+        .populate('userId', 'name email role leaveBalance totalLeaveBalance')
+        .sort({ createdAt: -1 })
+        .lean();
     }, 20);
 
+    console.log('listLeaves: returning', items.length, 'cached items')
     res.json(items);
   } catch(err) {
+    console.error('listLeaves error:', err.message)
     res.status(500).json({ message: 'Error listing leaves', error: err.message });
   }
 };
@@ -151,7 +173,10 @@ exports.approveLeave = async (req, res) => {
     );
     console.log('approveLeave: updated leave', l._id, 'and cleared cache for user', l.userId);
 
-    res.json({ message: 'Approved', leave: updated });
+    // Also return updated user balance to make it easier for clients to update UI immediately
+    const updatedUser = user ? { id: String(user._id), leaveBalance: user.leaveBalance, totalLeaveBalance: user.totalLeaveBalance } : null;
+
+    res.json({ message: 'Approved', leave: updated, user: updatedUser });
   } catch(err) {
     res.status(500).json({ message: 'Error approving', error: err.message });
   }
@@ -190,6 +215,14 @@ exports.getBalance = async (req, res) => {
     // Use helper for role logic
     if (req.user.id !== userId && !isManager(req)) {
       return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const force = req.query.force === '1' || req.query.force === 'true';
+
+    if (force) {
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: 'Not found' });
+      return res.json({ userId, balance: user.leaveBalance });
     }
 
     const cacheKey = `balance:user:${userId}`;
