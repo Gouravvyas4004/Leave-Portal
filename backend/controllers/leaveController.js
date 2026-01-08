@@ -55,6 +55,24 @@ exports.applyLeave = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    // Validate dates are not before current date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const fromDate = new Date(from);
+    fromDate.setHours(0, 0, 0, 0);
+    const toDate = new Date(to);
+    toDate.setHours(0, 0, 0, 0);
+
+    if (fromDate < today) {
+      return res.status(400).json({ message: 'Start date cannot be before today' });
+    }
+    if (toDate < today) {
+      return res.status(400).json({ message: 'End date cannot be before today' });
+    }
+    if (toDate < fromDate) {
+      return res.status(400).json({ message: 'End date must be after start date' });
+    }
+
     const l = new Leave({ userId, type, from, to, days, status: 'pending' });
     await l.save();
     

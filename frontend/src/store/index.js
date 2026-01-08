@@ -39,4 +39,4 @@ sagaMiddleware.run(rootSaga)
 // Create persistor for rehydration on app load
 export const persistor = persistStore(store)
 
-export default store
+export default store;

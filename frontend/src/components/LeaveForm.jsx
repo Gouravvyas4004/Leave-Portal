@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { applyLeaveRequest } from '../store/leaveSlice'
 import { TextField, Button, MenuItem, Paper, Typography } from '@mui/material'
@@ -12,6 +12,55 @@ export default function LeaveForm(){
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [days, setDays] = useState(1)
+
+  // Calculate minimum date (today) once and memoize it
+  const minDate = useMemo(() => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return today.toISOString().split('T')[0]
+  }, [])
+
+  // Handle from date change with validation
+  const handleFromDateChange = (e) => {
+    const selectedDate = e.target.value
+    if (!selectedDate) {
+      setFrom('')
+      return
+    }
+    
+    const selected = new Date(selectedDate)
+    selected.setHours(0, 0, 0, 0)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    if (selected < today) {
+      dispatch({ type: 'ui/showToast', payload: { message: 'Start date cannot be before today', severity: 'warning' } })
+      return
+    }
+    
+    setFrom(selectedDate)
+  }
+
+  // Handle to date change with validation
+  const handleToDateChange = (e) => {
+    const selectedDate = e.target.value
+    if (!selectedDate) {
+      setTo('')
+      return
+    }
+    
+    const selected = new Date(selectedDate)
+    selected.setHours(0, 0, 0, 0)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    if (selected < today) {
+      dispatch({ type: 'ui/showToast', payload: { message: 'End date cannot be before today', severity: 'warning' } })
+      return
+    }
+    
+    setTo(selectedDate)
+  }
 
   // Auto-calculate inclusive days when dates change
   useEffect(() => {
@@ -36,6 +85,18 @@ export default function LeaveForm(){
     if (!from || !to) return dispatch({ type: 'ui/showToast', payload: { message: 'Select valid dates', severity: 'warning' } })
     if (days <= 0) return dispatch({ type: 'ui/showToast', payload: { message: 'Days must be > 0', severity: 'warning' } })
     
+    // Validate dates are not before current date
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const fromDate = new Date(from)
+    fromDate.setHours(0, 0, 0, 0)
+    const toDate = new Date(to)
+    toDate.setHours(0, 0, 0, 0)
+    
+    if (fromDate < today) return dispatch({ type: 'ui/showToast', payload: { message: 'Start date cannot be before today', severity: 'warning' } })
+    if (toDate < today) return dispatch({ type: 'ui/showToast', payload: { message: 'End date cannot be before today', severity: 'warning' } })
+    if (toDate < fromDate) return dispatch({ type: 'ui/showToast', payload: { message: 'End date must be after start date', severity: 'warning' } })
+    
     dispatch(applyLeaveRequest({ userId: user.id, type, from, to, days }))
   }
 
@@ -47,8 +108,8 @@ export default function LeaveForm(){
           {types.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
         </TextField>
         
-        <TextField fullWidth label="From" type="date" InputLabelProps={{ shrink: true }} value={from} onChange={e => setFrom(e.target.value)} />
-        <TextField fullWidth label="To" type="date" InputLabelProps={{ shrink: true }} value={to} onChange={e => setTo(e.target.value)} />
+        <TextField fullWidth label="From" type="date" InputLabelProps={{ shrink: true }} value={from} onChange={handleFromDateChange} slotProps={{ htmlInput: { min: minDate } }} />
+        <TextField fullWidth label="To" type="date" InputLabelProps={{ shrink: true }} value={to} onChange={handleToDateChange} slotProps={{ htmlInput: { min: minDate } }} />
         
         <TextField fullWidth label="Days" type="number" value={days} InputProps={{ readOnly: true }} helperText="Auto-calculated from date range" />
         
