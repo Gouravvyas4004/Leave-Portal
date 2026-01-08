@@ -46,29 +46,29 @@ export default function Dashboard() {
         </Box>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <KpiCard title="Available Balance" value={balance ?? userBalance ?? '-'} subtext="Annual Leave Days" />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={6} md={4}>
              <KpiCard title="Total Annual Leaves" value={user?.totalLeaveBalance ?? 20} icon={<EventNoteIcon />} subtext="Allocated leaves" />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <Card sx={{ height: '100%', display: 'flex', alignItems: 'center', p: 2, bgcolor: 'primary.main', color: 'white' }}>
                <DateRangeIcon sx={{ fontSize: 40, mr: 2, opacity: 0.8 }} />
                <Box>
-                 <Typography variant="h6">Pending Requests</Typography>
+                 <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>Pending Requests</Typography>
                  <Typography variant="h4" fontWeight="bold">{pendingCount}</Typography>
                </Box>
             </Card>
           </Grid>
         </Grid>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           <Grid item xs={12} lg={4}>
             <LeaveForm />
           </Grid>
           <Grid item xs={12} lg={8}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Recent History</Typography>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}>Recent History</Typography>
             <LeaveTable />
           </Grid>
         </Grid>

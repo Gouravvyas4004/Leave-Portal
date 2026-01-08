@@ -27,8 +27,8 @@ export default function Layout({ children }){
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{ textAlign: 'right', mr: 1, display: { xs: 'none', sm: 'block' } }}>
-              <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.95)', fontWeight: 600 }}>{user?.name ?? 'Guest'}</Typography>
-              <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.85)' }}>{user?.role ?? ''}</Typography>
+              <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.95)', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>{user?.name ?? 'Guest'}</Typography>
+              <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.85)', fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>{user?.role ?? ''}</Typography>
             </Box>
 
             <Tooltip title="Account settings">
@@ -74,7 +74,7 @@ export default function Layout({ children }){
       {/* Spacer to offset fixed AppBar */}
       <Toolbar />
 
-      <Container component="main" sx={{ flexGrow: 1, py: 4, maxWidth: 'xl' }}>
+      <Container component="main" sx={{ flexGrow: 1, py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 }, maxWidth: 'xl' }}>
         {children}
       </Container>
 

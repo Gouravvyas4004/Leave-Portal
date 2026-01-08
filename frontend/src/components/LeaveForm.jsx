@@ -101,20 +101,20 @@ export default function LeaveForm(){
   }
 
   return (
-    <Paper className="p-6" sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom>Apply Leave</Typography>
+    <Paper sx={{ p: { xs: 2, sm: 3 } }}>
+      <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>Apply Leave</Typography>
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <TextField select fullWidth label="Type" value={type} onChange={e => setType(e.target.value)}>
           {types.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
         </TextField>
         
-        <TextField fullWidth label="From" type="date" InputLabelProps={{ shrink: true }} value={from} onChange={handleFromDateChange} slotProps={{ htmlInput: { min: minDate } }} />
-        <TextField fullWidth label="To" type="date" InputLabelProps={{ shrink: true }} value={to} onChange={handleToDateChange} slotProps={{ htmlInput: { min: minDate } }} />
+        <TextField fullWidth label="From" type="date" InputLabelProps={{ shrink: true }} value={from} onChange={handleFromDateChange} inputProps={{ min: minDate }} />
+        <TextField fullWidth label="To" type="date" InputLabelProps={{ shrink: true }} value={to} onChange={handleToDateChange} inputProps={{ min: minDate }} />
         
         <TextField fullWidth label="Days" type="number" value={days} InputProps={{ readOnly: true }} helperText="Auto-calculated from date range" />
         
         {/* Button uses 'applying' state now */}
-        <Button type="submit" variant="contained" disabled={applying}>
+        <Button type="submit" variant="contained" disabled={applying} sx={{ py: { xs: 1, sm: 1.5 } }}>
             {applying ? 'Applying...' : 'Apply'}
         </Button>
         

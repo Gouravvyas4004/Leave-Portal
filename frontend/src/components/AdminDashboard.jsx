@@ -92,9 +92,9 @@ export default function AdminDashboard() {
       </Box>
 
       <Container maxWidth="xl">
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {/* Sidebar: Employee List */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} lg={3}>
             <Paper elevation={1} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
               {/* Header */}
               <Box sx={{ p: 2.5, borderBottom: '1px solid #f1f5f9', bgcolor: '#fafbfc', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -226,25 +226,25 @@ export default function AdminDashboard() {
           </Grid>
 
           {/* Main Content Area */}
-          <Grid item xs={12} md={9}>
+          <Grid item xs={12} lg={9}>
             <Grid container spacing={3}>
               {/* KPI Cards - Always visible */}
               <Grid item xs={12}>
                 <Box sx={{ position: 'sticky', top: 16, zIndex: 1, mb: 2 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={3}>
+                  <Grid container spacing={1.5}>
+                    <Grid item xs={12} sm={6} md={3}>
                       <KpiCard title="Employees" value={totalEmployees} icon={<PeopleIcon />} subtext="Total employees" />
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} sm={6} md={3}>
                       <KpiCard title="Open Requests" value={pendingCount} icon={<HourglassEmptyIcon />} color="warning" subtext="Pending approval" />
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} sm={6} md={3}>
                       <KpiCard title="Approved" value={approvedCount} icon={<CheckCircleIcon />} color="success" subtext="Approved requests" />
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} sm={6} md={3}>
                       <KpiCard title="Rejected" value={rejectedCount} icon={<CancelIcon />} color="error" subtext="Declined requests" />
                     </Grid>
                   </Grid>
@@ -254,10 +254,10 @@ export default function AdminDashboard() {
               {/* All Leave Requests - Only show if no employee is selected */}
               {selectedIndex === null && (
                 <Grid item xs={12}>
-                  <Paper sx={{ p: 3, mb: 3, borderTop: '4px solid #3b82f6' }} elevation={1}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="h6" fontWeight="bold">All Leave Requests</Typography>
-                      <Tabs value={selectedTab} onChange={(e, v) => setSelectedTab(v)} size="small" textColor="primary" indicatorColor="primary">
+                  <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderTop: '4px solid #3b82f6' }} elevation={1}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 2, gap: 2 }}>
+                      <Typography variant="h6" fontWeight="bold" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>All Leave Requests</Typography>
+                      <Tabs value={selectedTab} onChange={(e, v) => setSelectedTab(v)} size="small" textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto">
                         <Tab label={`Pending (${leaves.filter(l => l.status === 'pending').length})`} value="pending" />
                         <Tab label={`Approved (${leaves.filter(l => l.status === 'approved').length})`} value="approved" />
                         <Tab label={`Rejected (${leaves.filter(l => l.status === 'rejected').length})`} value="rejected" />

@@ -25,8 +25,8 @@ export default function LeaveTable({ onApprove, onReject, adminView, items: item
   }
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-      <Table stickyHeader>
+    <Paper sx={{ width: '100%', overflow: { xs: 'auto', sm: 'hidden' }, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+      <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
         <TableHead>
           <TableRow>
             <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
