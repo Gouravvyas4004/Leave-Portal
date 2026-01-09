@@ -6,7 +6,7 @@ import { fetchUsersRequest, fetchUsersSuccess, fetchUsersFailure, fetchUserDetai
 
 // --- 1. SETUP AXIOS INSIDE THIS FILE ---
 // Get URL from .env (or default to localhost)
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({ 
   baseURL: BASE_URL,
